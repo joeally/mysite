@@ -1,0 +1,12 @@
+# Site settings
+title: "/joeally"
+email: ""
+description: "My adventures of programming and computer science"
+baseurl: ""
+url: "http://joeally.github.io/"
+username: joeally
+
+
+# Build settings
+markdown: kramdown
+permalink: pretty
