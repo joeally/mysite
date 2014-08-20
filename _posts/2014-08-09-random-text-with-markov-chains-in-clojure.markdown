@@ -8,9 +8,9 @@ categories: clojure markov
 In my previous post gave a brief introduction behind the theory of generating random text using markov chains. In this post I outline how I implemented this in Clojure.
 
 ## The Input
-The inputs in this particular example will be a collection of sequences. In this particular blog post I each item in a particular sequence will be a string representing a word. But there is no reason why any type of symbol could not be used instead. 
+The inputs in this particular example will be a collection of sequences. In this particular blog post In each item in a particular sequence will be a string representing a word. But there is no reason why any type of symbol could not be used instead. 
 
-However it is difficult to collections of sequences of words. It is more common to find a corpus of documents similar to the corpus shown below (in Clojure a data structure).
+However it is difficult to collect of very sequences of words. It is more common to find a corpus of documents similar to the corpus shown below (in Clojure a data structure).
 
 {% highlight clojure %}
 '("To succeed in life, you need two things: ignorance and confidence"
@@ -29,7 +29,7 @@ The below function converts a corpus into a collection of sequences of words. It
          (clojure.string/split #" "))))
 {% endhighlight %}
 
-This function converts the corpus shown previously into the following clojure datastructure:
+This function converts the corpus shown previously into the following Clojure data structure:
 {% highlight clojure %}
 (["to" "succeed" "in" "life" "," "you" "need" "two" "things" ":" "ignorance" "and" "confidence"]
  ["the" "secret" "of" "getting" "ahead" "is" "getting" "started"]
@@ -126,7 +126,7 @@ Now we are able to build a transition table we can now generate our sequences of
    first
    (iterate
     (fn [prev]
-      ;;j
+      ;;return a sequence of all except the first value in the previous result and the next in the sequence
       (conj (vec (drop 1 prev)) (tt/rand-next trans-tbl prev)))
     prev)))
 {% endhighlight %}
