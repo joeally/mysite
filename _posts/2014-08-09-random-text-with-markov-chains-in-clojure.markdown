@@ -5,7 +5,7 @@ date:   2014-08-09 12:00:00
 categories: clojure markov
 ---
 
-In my previous post gave a brief introduction behind the theory of generating random text using markov chains. In this post I outline how I implemented this in Clojure.
+In my [previous]({{page.previous.url}}) post I gave a brief introduction behind the theory of generating random text using Markov chains. In this post I outline how I implemented this in Clojure.
 
 ## The Input
 The inputs in this particular example will be a collection of sequences. In this particular blog post In each item in a particular sequence will be a string representing a word. But there is no reason why any type of symbol could not be used instead. 
@@ -37,7 +37,7 @@ This function converts the corpus shown previously into the following Clojure da
 {% endhighlight %}
 
 ## Building the Transition Table
-From the previous post you'll recall that to build any kind of Markov chain a tranistion table is required. Clojure has a very powerful builtin persistant map type which excels in situations such as these. The keys will represent what we are transitioning from and the values will be what we are transitioning to. To enable markov chains with $$n > 1$$, the keys of the map will be vectors of length $$n$$.
+From the previous post you'll recall that to build any kind of Markov chain a tranistion table is required. Clojure has a very powerful builtin persistant map type which excels in situations such as these. The keys will represent what we are transitioning from and the values will be what we are transitioning to. To enable Markov chains with $$n > 1$$, the keys of the map will be vectors of length $$n$$.
 In the previous post I mentioned that the values of the map would be lists of words. As we do not need any notion of ordering we can store this list more efficiently as a map of words to the number of times they were transitioned to. Otherwise known as a *bag-of-words*.
 
 The transition table for $$n = 2$$ for the following sequence
