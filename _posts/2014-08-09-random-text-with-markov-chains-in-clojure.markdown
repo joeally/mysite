@@ -126,6 +126,7 @@ For the case when we want to build a transition table for a whole corpus I have 
           (map #(collect-transitions % n))
           (reduce tt/concat-tt))))
 
+{% endhighlight %}
 
 ##Generating the Sequence
 Now we are able to build a transition table we can now generate our sequences of tokens.  
