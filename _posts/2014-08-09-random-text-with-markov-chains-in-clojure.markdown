@@ -65,7 +65,7 @@ The function which produces this result is as follows:
 
 {% highlight clojure %}
 (defn collect-transitions
-  ([seqn n]
+  ([seqn n] ;; The n argument represents the value of n for the Markov chain we are generating the table for
      (->> seqn
           ;;split sequence into overlapping sequences of n+1
           (partition (inc n) 1)
@@ -116,8 +116,18 @@ Above you can see the tt/add-transition function which I have not defined yet. T
 
 One can see that the function is defined as part of a Clojure [protocol](http://clojure.org/protocols). This will allow me to easily specify another implementation should I wish to.
 
-##Generating the Sequence
+For the case when we want to build a transition table for a whole corpus I have written the function below. The concat-tt function is used to combine the transitions from two transition tables in to a single one.
 
+{% highlight clojure %}
+(defn corpus-transitions
+  ([corpus] (corpus-transitions corpus 1))
+  ([corpus n]
+     (->> corpus
+          (map #(collect-transitions % n))
+          (reduce tt/concat-tt))))
+
+
+##Generating the Sequence
 Now we are able to build a transition table we can now generate our sequences of tokens.  
 
 {% highlight clojure %}
