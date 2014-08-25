@@ -8,9 +8,9 @@ categories: clojure markov
 In my [previous]({{page.previous.url}}) post I gave a brief introduction behind the theory of generating random text using Markov chains. In this post I outline how I implemented this in Clojure.
 
 ## The Input
-The inputs in this particular example will be a collection of sequences. In this particular blog post In each item in a particular sequence will be a string representing a word. But there is no reason why any type of symbol could not be used instead. 
+The inputs in this particular example will be a collection of sequences. In this blog post, each item in a particular sequence will be a string representing a word. But there is no reason why any type of symbol could not be used instead. 
 
-However it is difficult to collect of very sequences of words. It is more common to find a corpus of documents similar to the corpus shown below (in Clojure a data structure).
+Howevever, rather than using a single document to build our random sequence generator we will use a corpus of documents. That way we can continuously improve our random sequence generator. An example of such a corpus is shown below (in a Clojure data structure).
 
 {% highlight clojure %}
 '("To succeed in life, you need two things: ignorance and confidence"
@@ -76,7 +76,7 @@ The function which produces this result is as follows:
   ([seqn] (collect-transitions seqn 1))
 {% endhighlight %}
 
-Above you can see the tt/add-transition function which I have not defined yet. This function simply adds a transition to the transition table. The "from" argument is the token being transitioned from and the "to" argument is the token being transitioned to. "tt" is the namespace I am importing the package containing this function under. Below is the file in which the "add-transition" function is defined:
+Above you can see the tt/add-transition function which I have not defined yet. This function simply adds a transition to the transition table. The "from" argument is the token being transitioned from and the "to" argument is the token being transitioned to. "tt" is the namespace given to the pacakge in which the helper functions for the transition table are defined. Below is the file in which the "add-transition" function is defined.
 
 {% highlight clojure %}
 (ns markovtext.transitiontable
@@ -129,17 +129,17 @@ For the case when we want to build a transition table for a whole corpus I have 
 {% endhighlight %}
 
 ##Generating the Sequence
-Now we are able to build a transition table we can now generate our sequences of tokens.  
+Now we've built the transition table we can now generate our sequences of tokens. In addition to the transition table, the below function takes a vector of first $$n$$ tokens for the sequence from which we can generate the subsequent items in the sequence using the transition table.
 
 {% highlight clojure %}
-(defn quite-likely-seq [prev trans-tbl n]
+(defn quite-likely-seq [fst trans-tbl]
   (map
    first
    (iterate
     (fn [prev]
       ;;return a sequence of all except the first value in the previous result and the next in the sequence
       (conj (vec (drop 1 prev)) (tt/rand-next trans-tbl prev)))
-    prev)))
+    fst)))
 {% endhighlight %}
 
 We are using the [iterate](http://clojuredocs.org/clojure_core/clojure.core/iterate) function to generate a lazy sequence of from part of the transitions. That is it will generate sequence of pairs in the following form if $$n=2$$
