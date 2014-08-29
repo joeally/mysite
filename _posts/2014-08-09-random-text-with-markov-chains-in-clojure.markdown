@@ -10,7 +10,7 @@ In my [previous]({{page.previous.url}}) post I gave a brief introduction behind 
 ## The Input
 The inputs in this particular example will be a collection of sequences. In this blog post, each item in a particular sequence will be a string representing a word. But there is no reason why any type of symbol could not be used instead. 
 
-Howevever, rather than using a single document to build our random sequence generator we will use a corpus of documents. That way we can continuously improve our random sequence generator. An example of such a corpus is shown below (in a Clojure data structure).
+Howevever, rather than using a single document to build our random sequence generator we will use a corpus of documents. That way we can continuously improve our random sequence generator by adding the transitions from more documents to our transition table. An example of such a corpus is shown below (in a Clojure data structure).
 
 {% highlight clojure %}
 '("To succeed in life, you need two things: ignorance and confidence"
@@ -129,7 +129,7 @@ For the case when we want to build a transition table for a whole corpus I have 
 {% endhighlight %}
 
 ##Generating the Sequence
-Now we've built the transition table we can now generate our sequences of tokens. In addition to the transition table, the below function takes a vector of first $$n$$ tokens for the sequence from which we can generate the subsequent items in the sequence using the transition table.
+Now we've built the transition table we can now generate our sequences of tokens. In addition to the transition table, the below function takes a vector of first $$n$$ tokens for the sequence (the initialization sequence) from which we can generate the subsequent items in the sequence using the transition table.
 
 {% highlight clojure %}
 (defn quite-likely-seq [fst trans-tbl]
@@ -160,6 +160,15 @@ We can then take the take the first of each of these to generate our random sequ
 {% highlight clojure %}
 ;;tn represents the nth token in the randomly generated sequence
 t0 t1 t2 t3 ...
+{% endhighlight %}
+
+We can then create the following convenience function that takes a corpus and generates a sequence (rather than taking a transition table and an initialization sequence).
+
+{% highlight clojure %}
+(defn corpus-likely-seq [corpus n]
+  (let [transitions (corpus-transitions (process-corpus corpus) n)]
+    (let [start (rand-nth (vec (keys transitions)))]
+      (quite-likely-seq start transitions))))
 {% endhighlight %}
 
 In the next blog post I'll talk about scrapping some data from reddit and generating some random sequences using it.
