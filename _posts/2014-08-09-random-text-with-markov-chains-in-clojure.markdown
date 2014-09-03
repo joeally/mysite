@@ -42,7 +42,7 @@ In the previous post I mentioned that the values of the map would be lists of wo
 
 The transition table for $$n = 2$$ for the following sequence
 {% highlight clojure %}
-["to" "succeed" "in" "life" "," "you" "need" "two" "things" ":" "ignorance" "and" "confidence"]
+(def sentence-seq ["to" "succeed" "in" "life" "," "you" "need" "two" "things" ":" "ignorance" "and" "confidence"])
 {% endhighlight %}
 
 can be seen below.
@@ -61,20 +61,24 @@ can be seen below.
  ["to" "succeed"] {"in" 1}}
  {% endhighlight %}
 
-The function which produces this result is as follows:
+One can achieve this result by collecting the transitions using <code>col-transitions</code> and converting them into a transition table using <code>make-transition-table</code>. The two functions are shown below with an example of how they would typically be composed.
 
 {% highlight clojure %}
-(defn collect-transitions
-  ([seqn n] ;; The n argument represents the value of n for the Markov chain we are generating the table for
-     (->> seqn
-          ;;split sequence into overlapping sequences of n+1
-          (partition (inc n) 1)
-          ;;convert these sequnces into vector in the form [fromvec to]
-          (map (fn [part] [(vec (take n part)) (last part)]))
-          ;;collect transition vectors into a map
-          (reduce (fn [tt [from to]] (tt/add-transition tt from to)) {})))
-  ([seqn] (collect-transitions seqn 1))
+(defn col-transitions [seqn n]
+  (partition (inc n) 1 seqn))
+
+(defn make-transition-table [transitions]
+  (->> transitions
+      ;;convert transition to [from-vec to-symbol] pairs
+      (map (fn [part] [(vec (take (dec (count part)) part)) (last part)]))
+      ;;collect transition vectors into a map
+      (reduce (fn [tt [from to]] (tt/add-transition tt from to)) {})))
+
+(def transiton-table 
+ (make-transition-table 
+   (col-transitions sentence-seq 2)))
 {% endhighlight %}
+
 
 Above you can see the tt/add-transition function which I have not defined yet. This function simply adds a transition to the transition table. The "from" argument is the token being transitioned from and the "to" argument is the token being transitioned to. "tt" is the namespace given to the pacakge in which the helper functions for the transition table are defined. Below is the file in which the "add-transition" function is defined.
 
@@ -102,9 +106,6 @@ Above you can see the tt/add-transition function which I have not defined yet. T
   (add-transition-vec [tt from to-vec]
     (reduce #(add-transition %1 from %2) tt to-vec))
 
-  (concat-tt [tt1 tt2]
-    (merge-with concat-bag tt1 tt2))
-
   (rand-first [tt]
     (rand-nth (keys tt)))
 
@@ -116,16 +117,16 @@ Above you can see the tt/add-transition function which I have not defined yet. T
 
 One can see that the function is defined as part of a Clojure [protocol](http://clojure.org/protocols). This will allow me to easily specify another implementation should I wish to.
 
-For the case when we want to build a transition table for a whole corpus I have written the function below. The concat-tt function is used to combine the transitions from two transition tables in to a single one.
+For the case when we want to build a transition table for a whole corpus I have written the function below. One can simply concatenate the sequences of transitions for the documents in the corpus into a single sequence before using that to construct the transition table.
 
 {% highlight clojure %}
 (defn corpus-transitions
-  ([corpus] (corpus-transitions corpus 1))
   ([corpus n]
-     (->> corpus
-          (map #(collect-transitions % n))
-          (reduce tt/concat-tt))))
-
+      (->> corpus
+           (map #(col-transitions % n))
+           (apply concat)
+           (make-transition-table)))
+  ([corpus] (corpus-transitions corpus 1)))
 {% endhighlight %}
 
 ##Generating the Sequence
