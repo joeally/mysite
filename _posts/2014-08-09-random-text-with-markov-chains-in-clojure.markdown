@@ -80,7 +80,7 @@ One can achieve this result by collecting the transitions using <code>col-transi
 {% endhighlight %}
 
 
-Above you can see the tt/add-transition function which I have not defined yet. This function simply adds a transition to the transition table. The "from" argument is the token being transitioned from and the "to" argument is the token being transitioned to. "tt" is the namespace given to the pacakge in which the helper functions for the transition table are defined. Below is the file in which the "add-transition" function is defined.
+Above you can see the tt/add-transition function which I have not defined yet. This function simply adds a transition to the transition table. The <code>from</code> argument is the token being transitioned from and the <code>to</code> argument is the token being transitioned to. <code>tt</code> is the namespace given to the pacakge in which the helper functions for the transition table are defined. Below is the file in which the <code>add-transition</code> function is defined.
 
 {% highlight clojure %}
 (ns markovtext.transitiontable
