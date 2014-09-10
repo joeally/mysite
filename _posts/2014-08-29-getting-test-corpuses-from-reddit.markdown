@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Getting Test Corpuses from Reddit"
+title:  "Markov Sequences: Getting Test Corpuses from Reddit (Part 3)"
 date:   2014-08-29 12:00:00
 categories: clojure markov reddit
 ---

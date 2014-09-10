@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Random Text with Markov Chains in Clojure"
+title:  "Markov Sequences: Random Text with Markov Chains in Clojure (Part 2)"
 date:   2014-08-09 12:00:00
 categories: clojure markov
 ---
@@ -26,7 +26,8 @@ The below function converts a corpus into a collection of sequences of words. It
     (-> doc
          (clojure.string/lower-case)
          (clojure.string/replace #"[\.,?:;]" #(clojure.string/join [" " (str %)]))
-         (clojure.string/split #" "))))
+         (clojure.string/split #" ")
+         ((fn [x] (remove empty? x))))))
 {% endhighlight %}
 
 This function converts the corpus shown previously into the following Clojure data structure:
@@ -61,18 +62,17 @@ can be seen below.
  ["to" "succeed"] {"in" 1}}
  {% endhighlight %}
 
-One can achieve this result by collecting the transitions using <code>col-transitions</code> and converting them into a transition table using <code>make-transition-table</code>. The two functions are shown below with an example of how they would typically be composed.
+One can achieve this result by collecting the transitions using <code>col-transitions</code> and converting them into a transition table using <code>make-transition-table</code>. The two functions are shown below with an example of how they would typically be composed. We specify the <code>tbl</code> argument so that one can use this function to add to existing transition tables. It also has the benefit that one can use it to specify the data structure which transition table is stored in (things will be clear later on)
 
 {% highlight clojure %}
 (defn col-transitions [seqn n]
-  (partition (inc n) 1 seqn))
+  (->> seqn
+       (partition (inc n) 1)
+       ;;convert transition to [from-vec to-symbol] pairs
+       (map (fn [part] [(vec (drop-last part)) (last part)]))))
 
-(defn make-transition-table [transitions]
-  (->> transitions
-      ;;convert transition to [from-vec to-symbol] pairs
-      (map (fn [part] [(vec (take (dec (count part)) part)) (last part)]))
-      ;;collect transition vectors into a map
-      (reduce (fn [tt [from to]] (tt/add-transition tt from to)) {})))
+(defn make-transition-table [tbl transitions]
+  (reduce (fn [tt [from to]] (tt/add-transition tt from to)) tbl transitions))
 
 (def transiton-table 
  (make-transition-table 
@@ -83,7 +83,7 @@ One can achieve this result by collecting the transitions using <code>col-transi
 Above you can see the tt/add-transition function which I have not defined yet. This function simply adds a transition to the transition table. The <code>from</code> argument is the token being transitioned from and the <code>to</code> argument is the token being transitioned to. <code>tt</code> is the namespace given to the pacakge in which the helper functions for the transition table are defined. Below is the file in which the <code>add-transition</code> function is defined.
 
 {% highlight clojure %}
-(ns markovtext.transitiontable
+(ns markovtext.TransitionTable
   (:gen-class))
 
 (defn concat-bag [bag1 bag2]
@@ -115,17 +115,17 @@ Above you can see the tt/add-transition function which I have not defined yet. T
       (catch IndexOutOfBoundsException e nil))))
 {% endhighlight %}
 
-One can see that the function is defined as part of a Clojure [protocol](http://clojure.org/protocols). This will allow me to easily specify another implementation should I wish to.
+One can see that the function is defined as part of a Clojure [protocol](http://clojure.org/protocols). This will allow me to easily specify another implementation should I wish to. For now though I have only specified a protocol for Clojure's map type.
 
 For the case when we want to build a transition table for a whole corpus I have written the function below. One can simply concatenate the sequences of transitions for the documents in the corpus into a single sequence before using that to construct the transition table.
 
 {% highlight clojure %}
 (defn corpus-transitions
-  ([corpus n]
+  ([tbl corpus n]
       (->> corpus
            (map #(col-transitions % n))
            (apply concat)
-           (make-transition-table)))
+           (make-transition-table tbl)))
   ([corpus] (corpus-transitions corpus 1)))
 {% endhighlight %}
 
@@ -173,3 +173,5 @@ We can then create the following convenience function that takes a corpus and ge
 {% endhighlight %}
 
 In the next blog post I'll talk about scrapping some data from reddit and generating some random sequences using it.
+
+EDIT: Refactored the code a little and fixed a bug in <code>process-corpus</code>

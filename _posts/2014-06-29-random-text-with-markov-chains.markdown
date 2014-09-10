@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Generating Random Text with Markov Chains"
+title:  "Markov Sequences: Generating Random Text with Markov Chains (Part 1)"
 date:   2014-06-29 12:00:00
 categories: clojure programming 
 ---
